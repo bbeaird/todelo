@@ -17,28 +17,6 @@ class Todo
 	end
 end
 
-if File.exist?("todos.csv")
-	p "todos.csv already exists, so we'll be adding todos to that."
-else
-	todos_csv = CSV.open("todos.csv", "wb", headers: true, return_headers: false) do |csv|
-		csv << ["contents", "rating"]
-	end
-end
-
-# ask user to create new todo or rate current todos
-p "Push 1 for create new todo; push 2 to rate current todos."
-option = gets.chomp.to_i
-
-if option == 1
-	p "What do is your todo?"
-	todo_contents = gets.chomp
-	# later add an option for how important it is; maybe 1, 2, or 3
-	todo = Todo.new(contents: todo_contents)
-	CSV.open("todos.csv", "a+") do |csv|
-		csv << [todo_contents, todo.rating]
-	end
-end
-
 def return_two_todos
 	todos = []
 	CSV.foreach("todos.csv") do |row|
@@ -77,32 +55,68 @@ def compare(todo1, todo2)
 	end
 end
 
-if option == 2
-	# start ranking todos
-	while true
-		p todos_to_compare = return_two_todos
-		compare(todos_to_compare[0], todos_to_compare[1])
-		break
+def save_todos
+	
+	todos_csv = CSV.open("todos.csv", "wb", headers: true, return_headers: false) do |csv|
+		csv << ["contents", "rating"]
+		$todos.each do |todo|
+			csv << [todo.contents, todo.rating]
+		end
+	end	
+end
+
+def create_or_update_todos
+	# ask user to create new todo or rate current todos
+	p "Push 1 for create new todo; push 2 to rate current todos."
+	option = gets.chomp.to_i
+
+	if option == 1
+		p "What do is your todo?"
+		p todo_contents = gets.chomp
+		# later add an option for how important it is; maybe 1, 2, or 3
+		p todo = Todo.new(contents: todo_contents)
+		# CSV.open("todos.csv", "a+") do |csv|
+		# 	csv << [todo_contents, todo.rating]
+		# end
+		p 'about to p todo'
+		p todo
+		$todos << todo
+	elsif option == 2
+		# start ranking todos
+		while true
+			p todos_to_compare = return_two_todos
+			compare(todos_to_compare[0], todos_to_compare[1])
+			break
+		end
+		save_todos
 	end
 end
 
-def match(winner, loser)
-	k_factor = 25
-	winner_expected = 1.0 / (1.0 + (10 ** ((loser[:rating].to_f - winner[:rating].to_f) / 400.0)))
-	p winner_change = k_factor.to_f * (1.0 - winner_expected.to_f)
-	winner[:rating] = (winner[:rating] + winner_change).to_i
+def create_or_open_todos_file
+	$todos = []
+	if File.exist?("todos.csv")
+		p "todos.csv already exists, so we'll be adding todos to that."
+		CSV.foreach("todos.csv") do |row|
+			$todos << Todo.new(contents: row[0], rating: row[1])
+		end
+	else
+		todos_csv = CSV.open("todos.csv", "wb", headers: true, return_headers: false) do |csv|
+			csv << ["contents", "rating"]
+		end
+	end
 end
 
-
-
-
-
-
-
-p 'Here are the contents and ratings of your current todos...'
-CSV.foreach("todos.csv") do |row|
-	p row
+def show_todos
+	p "Here are the contents and ratings of your current todos..."
+	CSV.foreach("todos.csv") do |row|
+		p row
+	end	
 end
+
+create_or_open_todos_file
+create_or_update_todos
+show_todos
+
 
 
 
