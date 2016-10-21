@@ -56,9 +56,9 @@ def compare(todo1, todo2)
 end
 
 def save_todos
-	
 	todos_csv = CSV.open("todos.csv", "wb", headers: true, return_headers: false) do |csv|
-		csv << ["contents", "rating"]
+		# csv << ["contents", "rating"]
+		p "inside save_todos - $todos - #{$todos}" 
 		$todos.each do |todo|
 			csv << [todo.contents, todo.rating]
 		end
@@ -88,8 +88,8 @@ def create_or_update_todos
 			compare(todos_to_compare[0], todos_to_compare[1])
 			break
 		end
-		save_todos
 	end
+	save_todos
 end
 
 def create_or_open_todos_file
