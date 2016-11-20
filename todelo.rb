@@ -63,8 +63,6 @@ end
 
 def save_todos
 	todos_csv = CSV.open("todos.csv", "wb", headers: true, return_headers: false) do |csv|
-		# csv << ["contents", "rating"]
-		# p "inside save_todos - $todos - #{$todos}" 
 		$todos.each do |content, rating|
 			csv << [content, rating]
 		end
@@ -77,24 +75,24 @@ def create_or_update_todos
 	option = gets.chomp.to_i
 
 	if option == 1
-		p "What do is your todo?"
-		todo_contents = gets.chomp
-		# later add an option for how important it is; maybe 1, 2, or 3
-		todo = Todo.new(contents: todo_contents)
-		# CSV.open("todos.csv", "a+") do |csv|
-		# 	csv << [todo_contents, todo.rating]
-		# end
-		todo
-		$todos[todo.contents] = todo.rating
+		while true
+			p "What do is your todo?"
+			todo_contents = gets.chomp
+			# later add an option for how important it is; maybe 1, 2, or 3
+			todo = Todo.new(contents: todo_contents)
+			if !$todos[todo.contents] 
+				$todos[todo.contents] = todo.rating
+			end
+			save_todos
+		end
 	elsif option == 2
 		# start ranking todos
 		while true
-			p todos_to_compare = return_two_todos
+			todos_to_compare = return_two_todos
 			compare(todos_to_compare[0], todos_to_compare[1])
-			# break
+			save_todos
 		end
 	end
-	save_todos
 end
 
 def create_or_open_todos_file
@@ -102,7 +100,6 @@ def create_or_open_todos_file
 	if File.exist?("todos.csv")
 		p "todos.csv already exists, so we'll be adding todos to that."
 		CSV.foreach("todos.csv") do |row|
-			# $todos << Todo.new(contents: row[0], rating: row[1])
 			$todos[row[0]] = row[1]
 		end
 	else
@@ -123,6 +120,8 @@ create_or_open_todos_file
 create_or_update_todos
 show_todos
 
+# make it so duplicate todos don't reset rating 
+# 
 
 
 
