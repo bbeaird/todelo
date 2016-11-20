@@ -19,7 +19,7 @@ end
 
 def return_two_todos
 	todos = []
-	CSV.foreach("todos.csv") do |row|
+	CSV.foreach("todos2.csv") do |row|
 		todos << Todo.new(contents: row[0], rating: row[1])
 	end
 	random_index1 = Random.new.rand(1..(todos.length-1))
@@ -62,7 +62,7 @@ def compare(todo1, todo2)
 end
 
 def save_todos
-	todos_csv = CSV.open("todos.csv", "wb", headers: true, return_headers: false) do |csv|
+	todos_csv = CSV.open("todos2.csv", "wb", headers: true, return_headers: false) do |csv|
 		$todos.each do |content, rating|
 			csv << [content, rating]
 		end
@@ -101,14 +101,13 @@ end
 
 def create_or_open_todos_file
 	$todos = {}
-	if File.exist?("todos.csv")
-		p "todos.csv already exists, so we'll be adding todos to that."
-		CSV.foreach("todos.csv") do |row|
+	if File.exist?("todos2.csv")
+		p "todos2.csv already exists, so we'll be adding todos to that."
+		CSV.foreach("todos2.csv") do |row|
 			$todos[row[0]] = row[1]
 		end
 	else
-		todos_csv = CSV.open("todos.csv", "wb", headers: true, return_headers: false) do |csv|
-			csv << ["contents", "rating"]
+		todos_csv = CSV.open("todos2.csv", "wb", headers: true, return_headers: false) do |csv|
 		end
 	end
 	create_or_update_todos
@@ -116,13 +115,28 @@ end
 
 def show_todos
 	p "Here are the contents and ratings of your current todos..."
-	CSV.foreach("todos.csv") do |row|
+	CSV.foreach("todos2.csv") do |row|
 		p row
 	end
 	create_or_open_todos_file	
 end
 
-create_or_open_todos_file
+# creates a todo for each letter of the alphabet with the default rating
+def alphabet_of_todos
+	$todos = {}
+	('a'..'z').to_a.each do |letter|
+		todo = Todo.new(contents: letter)
+		if !$todos[todo.contents] 
+			$todos[todo.contents] = todo.rating
+		end
+	end
+	save_todos	
+end
+
+### THIS DOES STUFF!
+# create_or_open_todos_file
+
+
 
 # make it so duplicate todos don't reset rating 
 # make it so after viewing todos, the program doesn't exit
