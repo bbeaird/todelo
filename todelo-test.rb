@@ -22,10 +22,10 @@ def return_two_todos
 	CSV.foreach("todos2.csv") do |row|
 		todos << Todo.new(contents: row[0], rating: row[1])
 	end
-	random_index1 = Random.new.rand(1..(todos.length-1))
-	random_index2 = Random.new.rand(1..(todos.length-1))
+	random_index1 = Random.new.rand(1..(todos.length)) - 1
+	random_index2 = Random.new.rand(1..(todos.length)) - 1
 	while random_index1 == random_index2
-		random_index2 = Random.new.rand(1..(todos.length-1))
+		random_index2 = Random.new.rand(1..(todos.length)) - 1
 	end
 	return [todos[random_index1], todos[random_index2]]
 end
@@ -37,27 +37,32 @@ def compare(todo1, todo2)
 	# response = gets.chomp.to_i
 	todo1.contents < todo2.contents ? response = 1 : response = 2
 	k_factor = 25
+	p "response is #{response}"
 	if response == 1
-		winner_expected = 1.0 / (1.0 + (10 ** ((todo2.rating.to_f - todo1.rating.to_f) / 400.0)))
-		winner_change = k_factor.to_f * (1.0 - winner_expected.to_f)
-		p todo1.rating = (todo1.rating.to_i + winner_change).to_i
+		p winner_expected = 1.0 / (1.0 + (10 ** ((todo2.rating.to_f - todo1.rating.to_f).abs / 400.0)))
+		p loser_expected = 1.0 / (1.0 + (10 ** ((todo1.rating.to_f - todo2.rating.to_f).abs / 400.0)))
+		
+		p winner_change = k_factor.to_f * (1.0 - winner_expected.to_f)
+		p loser_change = k_factor.to_f * (1.0 - loser_expected.to_f)
 
-		loser_expected = 1.0 / (1.0 + (10 ** ((todo1.rating.to_f - todo2.rating.to_f) / 400.0)))
-		loser_change = k_factor.to_f * (1.0 - loser_expected.to_f)
+		p todo1.rating = (todo1.rating.to_i + winner_change).to_i
 		p todo2.rating = (todo2.rating.to_i - loser_change).to_i
-		$todos[todo2.contents] = todo2.rating
-		$todos[todo1.contents] = todo1.rating
+
+		p $todos[todo2.contents] = todo2.rating
+		p $todos[todo1.contents] = todo1.rating
 		save_todos
 	else
-		winner_expected = 1.0 / (1.0 + (10 ** ((todo1.rating.to_f - todo2.rating.to_f) / 400.0)))
-		winner_change = k_factor.to_f * (1.0 - winner_expected.to_f)
-		p todo1.rating = (todo2.rating.to_i + winner_change).to_i
+		p winner_expected = 1.0 / (1.0 + (10 ** ((todo1.rating.to_f - todo2.rating.to_f).abs / 400.0)))
+		p loser_expected = 1.0 / (1.0 + (10 ** ((todo2.rating.to_f - todo1.rating.to_f).abs / 400.0)))
 
-		loser_expected = 1.0 / (1.0 + (10 ** ((todo2.rating.to_f - todo1.rating.to_f) / 400.0)))
-		loser_change = k_factor.to_f * (1.0 - loser_expected.to_f)
-		p todo2.rating = (todo1.rating.to_i - loser_change).to_i
-		$todos[todo2.contents] = todo2.rating
-		$todos[todo1.contents] = todo1.rating
+		p winner_change = k_factor.to_f * (1.0 - winner_expected.to_f)
+		p loser_change = k_factor.to_f * (1.0 - loser_expected.to_f)
+
+		p todo2.rating = (todo2.rating.to_i + winner_change).to_i
+		p todo1.rating = (todo1.rating.to_i - loser_change).to_i
+
+		p $todos[todo2.contents] = todo2.rating
+		p $todos[todo1.contents] = todo1.rating
 		save_todos
 	end
 end
@@ -123,7 +128,7 @@ def show_todos
 end
 
 # creates a todo for each letter of the alphabet with the default rating
-def alphabet_of_todos
+def create_alphabet_of_todos
 	$todos = {}
 	('a'..'z').to_a.each do |letter|
 		todo = Todo.new(contents: letter)
@@ -147,12 +152,15 @@ def how_many_out_of_order
 	if File.exist?("todos2.csv")
 		p "todos2.csv already exists, so we'll be adding todos to that."
 		CSV.foreach("todos2.csv") do |row|
-			$todos[row[0]] = row[1]
+			csv_letter = row[0]
+			rating = row[1]
+			$todos[csv_letter] = rating
 		end
 	end
 	('a'..'y').to_a.each_with_index do |letter, index|
 		count += 1 if $todos[letter] < $todos[letter.next]
 	end
+	count += 1 if $todos['y'] < $todos['z']
 	p "The number of letters out of order is #{count}."
 end
 
@@ -160,16 +168,22 @@ end
 ### THIS DOES STUFF!
 # create_or_open_todos_file
 
-# 500.times do 
-# 	rate_alphabet_todos
-# end
+# run this (creat_alphabet_of_todos) once to create alphabet of todos
+create_alphabet_of_todos
+500.times do
+	rate_alphabet_todos
+end
 
 how_many_out_of_order
 
 
-# make it so duplicate todos don't reset rating 
-# make it so after viewing todos, the program doesn't exit
-# create todos with a to z and run compare method 100 times to and then see how ordered things are
+### Things to do
+# X make it so duplicate todos don't reset rating 
+# X make it so after viewing todos, the program doesn't exit
+# X fix it such that the letter a gets rated properly.
+# X create todos with a to z and run compare method 100 times to and then see how ordered things are
+# figure out metric to determine how out of order things are!
+
 
 
 
