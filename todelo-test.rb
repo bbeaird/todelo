@@ -32,37 +32,51 @@ end
 
 def compare(todo1, todo2)
 	p "Which of the following is more important?"
-	p "1: #{todo1.contents}"
-	p "2: #{todo2.contents}"
+	p "1: #{todo1.contents} with a current rating of #{todo1.rating}"
+	p "2: #{todo2.contents} with a current rating of #{todo2.rating}"
 	# response = gets.chomp.to_i
 	todo1.contents < todo2.contents ? response = 1 : response = 2
 	k_factor = 25
 	p "response is #{response}"
 	if response == 1
-		p winner_expected = 1.0 / (1.0 + (10 ** ((todo2.rating.to_f - todo1.rating.to_f).abs / 400.0)))
-		p loser_expected = 1.0 / (1.0 + (10 ** ((todo1.rating.to_f - todo2.rating.to_f).abs / 400.0)))
+		p "winner_expected"
+		p winner_expected = 1.0 / (1.0 + (10 ** ((todo2.rating.to_f - todo1.rating.to_f) / 400.0)))
+		p "loser_expected"
+		p loser_expected = 1.0 / (1.0 + (10 ** ((todo1.rating.to_f - todo2.rating.to_f) / 400.0)))
 		
+		# 0 for losses, 0.5 for draw (equal priority importance), and 1 for a win
+		p "winner_change"
 		p winner_change = k_factor.to_f * (1.0 - winner_expected.to_f)
-		p loser_change = k_factor.to_f * (1.0 - loser_expected.to_f)
+		p "loser_change"
+		p loser_change = k_factor.to_f * (0 - loser_expected.to_f)
 
+		p "new todo1.rating"
 		p todo1.rating = (todo1.rating.to_i + winner_change).to_i
-		p todo2.rating = (todo2.rating.to_i - loser_change).to_i
+		p "new todo2.rating"
+		p todo2.rating = (todo2.rating.to_i + loser_change).to_i
 
-		p $todos[todo2.contents] = todo2.rating
-		p $todos[todo1.contents] = todo1.rating
+		$todos[todo2.contents] = todo2.rating
+		$todos[todo1.contents] = todo1.rating
 		save_todos
 	else
-		p winner_expected = 1.0 / (1.0 + (10 ** ((todo1.rating.to_f - todo2.rating.to_f).abs / 400.0)))
-		p loser_expected = 1.0 / (1.0 + (10 ** ((todo2.rating.to_f - todo1.rating.to_f).abs / 400.0)))
+		p "winner_expected"
+		p winner_expected = 1.0 / (1.0 + (10 ** ((todo1.rating.to_f - todo2.rating.to_f) / 400.0)))
+		p "loser_expected"
+		p loser_expected = 1.0 / (1.0 + (10 ** ((todo2.rating.to_f - todo1.rating.to_f) / 400.0)))
 
+		# 0 for losses, 0.5 for draw (equal priority importance), and 1 for a win
+		p "winner_change"
 		p winner_change = k_factor.to_f * (1.0 - winner_expected.to_f)
-		p loser_change = k_factor.to_f * (1.0 - loser_expected.to_f)
+		p "loser_change"
+		p loser_change = k_factor.to_f * (0 - loser_expected.to_f)
 
+		p "new todo1.rating"
+		p todo1.rating = (todo1.rating.to_i + loser_change).to_i
+		p "new todo2.rating"
 		p todo2.rating = (todo2.rating.to_i + winner_change).to_i
-		p todo1.rating = (todo1.rating.to_i - loser_change).to_i
 
-		p $todos[todo2.contents] = todo2.rating
-		p $todos[todo1.contents] = todo1.rating
+		$todos[todo1.contents] = todo1.rating
+		$todos[todo2.contents] = todo2.rating
 		save_todos
 	end
 end
