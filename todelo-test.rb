@@ -19,7 +19,7 @@ end
 
 def return_two_todos
 	todos = []
-	CSV.foreach("todos2.csv") do |row|
+	CSV.foreach("todos3.csv") do |row|
 		todos << Todo.new(contents: row[0], rating: row[1])
 	end
 	random_index1 = Random.new.rand(1..(todos.length)) - 1
@@ -35,7 +35,7 @@ def compare(todo1, todo2)
 	p "1: #{todo1.contents} with a current rating of #{todo1.rating}"
 	p "2: #{todo2.contents} with a current rating of #{todo2.rating}"
 	# response = gets.chomp.to_i
-	todo1.contents < todo2.contents ? response = 1 : response = 2
+	todo1.contents > todo2.contents ? response = 1 : response = 2
 	k_factor = 25
 	p "response is #{response}"
 	if response == 1
@@ -82,7 +82,7 @@ def compare(todo1, todo2)
 end
 
 def save_todos
-	todos_csv = CSV.open("todos2.csv", "wb", headers: true, return_headers: false) do |csv|
+	todos_csv = CSV.open("todos3.csv", "wb", headers: true, return_headers: false) do |csv|
 		$todos.each do |content, rating|
 			csv << [content, rating]
 		end
@@ -121,13 +121,13 @@ end
 
 def create_or_open_todos_file
 	$todos = {}
-	if File.exist?("todos2.csv")
-		p "todos2.csv already exists, so we'll be adding todos to that."
-		CSV.foreach("todos2.csv") do |row|
+	if File.exist?("todos3.csv")
+		p "todos3.csv already exists, so we'll be adding todos to that."
+		CSV.foreach("todos3.csv") do |row|
 			$todos[row[0]] = row[1]
 		end
 	else
-		todos_csv = CSV.open("todos2.csv", "wb", headers: true, return_headers: false) do |csv|
+		todos_csv = CSV.open("todos3.csv", "wb", headers: true, return_headers: false) do |csv|
 		end
 	end
 	# create_or_update_todos
@@ -135,7 +135,7 @@ end
 
 def show_todos
 	p "Here are the contents and ratings of your current todos..."
-	CSV.foreach("todos2.csv") do |row|
+	CSV.foreach("todos3.csv") do |row|
 		p row
 	end
 	create_or_open_todos_file	
@@ -144,7 +144,7 @@ end
 # creates a todo for each letter of the alphabet with the default rating
 def create_alphabet_of_todos
 	$todos = {}
-	('a'..'z').to_a.each do |letter|
+	('a'..'j').to_a.each do |letter|
 		todo = Todo.new(contents: letter)
 		if !$todos[todo.contents] 
 			$todos[todo.contents] = todo.rating
@@ -163,19 +163,72 @@ end
 def how_many_out_of_order
 	count = 0
 	$todos = {}
-	if File.exist?("todos2.csv")
-		p "todos2.csv already exists, so we'll be adding todos to that."
-		CSV.foreach("todos2.csv") do |row|
+	todo_rating_arr = []
+	if File.exist?("todos3.csv")
+		p "todos3.csv already exists, so we'll be adding todos to that."
+		CSV.foreach("todos3.csv") do |row|
 			csv_letter = row[0]
 			rating = row[1]
-			$todos[csv_letter] = rating
+			$todos[csv_letter] = rating.to_i
+			todo_rating_arr << rating.to_i
 		end
 	end
-	('a'..'y').to_a.each_with_index do |letter, index|
-		count += 1 if $todos[letter] < $todos[letter.next]
-	end
-	count += 1 if $todos['y'] < $todos['z']
+	# ('a'..'y').to_a.each_with_index do |letter, index|
+	# 	count += 1 if $todos[letter] < $todos[letter.next]
+	# end
+	# count += 1 if $todos['y'] < $todos['z']
+	p todo_rating_arr
+	count = num_swaps(todo_rating_arr)
 	p "The number of letters out of order is #{count}."
+end
+
+def num_swaps(arr)
+	# uses bubble_sort
+  # out_of_order = arr.length
+  swaps = 0
+  until arr == arr.sort
+  	# p arr
+  	arr.each_with_index do |val, i|
+  		if i != arr.length - 1
+  			p "val, i, arr[i], arr[i+1]"
+  			p val, i, arr[i], arr[i+1]
+	  		if val > arr[i+1] 
+	  			arr[i] = arr[i+1]
+	  			arr[i+1] = val
+	  			p arr
+  				swaps += 1
+	  		end
+	  	end
+  	end
+  end
+  # p swaps
+  return swaps
+end
+
+def generate_array
+	arr = []
+	100.times do |i|
+		arr << rand(100)
+		# arr << i
+	end
+	# arr.reverse!
+	arr	
+end
+
+def get_avg_swaps(iterations)
+	num_swaps = []
+	iterations.times do
+		arr = generate_array
+		num_swaps << num_swaps(arr)
+	end
+	p num_swaps
+
+	sum = 0
+	num_swaps.each do |val|
+		sum += val
+	end
+	avg = sum / num_swaps.length
+	p "avg = #{avg}"	
 end
 
 
@@ -184,11 +237,13 @@ end
 
 # run this (creat_alphabet_of_todos) once to create alphabet of todos
 create_alphabet_of_todos
-500.times do
+1000.times do
 	rate_alphabet_todos
 end
 
 how_many_out_of_order
+
+# get_avg_swaps(100)
 
 
 ### Things to do
@@ -197,6 +252,8 @@ how_many_out_of_order
 # X fix it such that the letter a gets rated properly.
 # X create todos with a to z and run compare method 100 times to and then see how ordered things are
 # figure out metric to determine how out of order things are!
+  # bubble_sort / num_swaps?
+
 
 
 
