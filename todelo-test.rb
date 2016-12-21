@@ -163,72 +163,71 @@ end
 def how_many_out_of_order
 	count = 0
 	$todos = {}
-	todo_rating_arr = []
+	$todo_rating_arr = []
 	if File.exist?("todos3.csv")
 		p "todos3.csv already exists, so we'll be adding todos to that."
 		CSV.foreach("todos3.csv") do |row|
 			csv_letter = row[0]
 			rating = row[1]
 			$todos[csv_letter] = rating.to_i
-			todo_rating_arr << rating.to_i
+			$todo_rating_arr << rating.to_i
 		end
 	end
-	# ('a'..'y').to_a.each_with_index do |letter, index|
-	# 	count += 1 if $todos[letter] < $todos[letter.next]
-	# end
-	# count += 1 if $todos['y'] < $todos['z']
-	p todo_rating_arr
-	count = num_swaps(todo_rating_arr)
+	count = num_swaps($todo_rating_arr)
 	p "The number of letters out of order is #{count}."
 end
 
 def num_swaps(arr)
 	# uses bubble_sort
-  # out_of_order = arr.length
+	p "arr in num_swaps: #{arr}"
   swaps = 0
   until arr == arr.sort
-  	# p arr
   	arr.each_with_index do |val, i|
   		if i != arr.length - 1
-  			p "val, i, arr[i], arr[i+1]"
-  			p val, i, arr[i], arr[i+1]
 	  		if val > arr[i+1] 
 	  			arr[i] = arr[i+1]
 	  			arr[i+1] = val
-	  			p arr
+	  			# p arr
   				swaps += 1
 	  		end
 	  	end
   	end
   end
-  # p swaps
-  return swaps
+	p "swaps at end of num_swaps: #{swaps}"
+	swaps
 end
 
-def generate_array
-	arr = []
-	100.times do |i|
-		arr << rand(100)
-		# arr << i
-	end
-	# arr.reverse!
-	arr	
-end
+# def generate_array
+# 	arr = []
+# 	100.times do |i|
+# 		arr << rand(100)
+# 	end
+# 	arr	
+# end
 
-def get_avg_swaps(iterations)
-	num_swaps = []
-	iterations.times do
-		arr = generate_array
-		num_swaps << num_swaps(arr)
-	end
-	p num_swaps
+# def get_avg_swaps(iterations)
+# 	num_swaps = []
+# 	iterations.times do
+# 		# arr = generate_array
+		
+# 		num_swaps << num_swaps(arr)
+# 	end
+# 	p num_swaps
 
+# 	sum = 0
+# 	num_swaps.each do |val|
+# 		sum += val
+# 	end
+# 	avg = sum / num_swaps.length
+# 	p "avg = #{avg}"
+# end
+
+def array_avg(arr)
 	sum = 0
-	num_swaps.each do |val|
+	arr.each do |val|
 		sum += val
 	end
-	avg = sum / num_swaps.length
-	p "avg = #{avg}"	
+	avg = (sum.to_f / arr.length).round(2)
 end
 
 
@@ -237,13 +236,19 @@ end
 
 # run this (creat_alphabet_of_todos) once to create alphabet of todos
 create_alphabet_of_todos
-1000.times do
+list_of_num_of_swaps = []
+50.times do
 	rate_alphabet_todos
+	how_many_out_of_order
+	p "$todo_rating_arr in loop: #{$todo_rating_arr}"
+	list_of_num_of_swaps << num_swaps($todo_rating_arr)
+	p "list_of_num_of_swaps: #{list_of_num_of_swaps}"
+	avg = array_avg(list_of_num_of_swaps)
+	p "avg = #{avg}"
 end
 
-how_many_out_of_order
 
-# get_avg_swaps(100)
+
 
 
 ### Things to do
@@ -251,8 +256,10 @@ how_many_out_of_order
 # X make it so after viewing todos, the program doesn't exit
 # X fix it such that the letter a gets rated properly.
 # X create todos with a to z and run compare method 100 times to and then see how ordered things are
-# figure out metric to determine how out of order things are!
-  # bubble_sort / num_swaps?
+# X figure out metric to determine how out of order things are!
+# X bubble_sort / num_swaps?
+# figure out if k-factor affects sortedness given fixed number of comparisons
+
 
 
 
