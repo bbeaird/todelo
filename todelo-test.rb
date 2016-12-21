@@ -144,7 +144,7 @@ end
 # creates a todo for each letter of the alphabet with the default rating
 def create_alphabet_of_todos
 	$todos = {}
-	('a'..'j').to_a.each do |letter|
+	('a'..'z').to_a.each do |letter|
 		todo = Todo.new(contents: letter)
 		if !$todos[todo.contents] 
 			$todos[todo.contents] = todo.rating
